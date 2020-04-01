@@ -12,8 +12,9 @@ valor=0
 
 class Aplicacion:
     def __init__(self):
-        self.i=0
-        self.imax=100
+        #self.i=0
+        #self.imax=100
+        self.play=1
         self.ventana=tk.Tk()
         style = ThemedStyle(self.ventana)
         style.set_theme("ubuntu")
@@ -24,15 +25,15 @@ class Aplicacion:
         self.cuaderno.add(self.pagina1, text='Monitorización')
         
         self.labelframe1=ttk.LabelFrame(self.pagina1, text='Control')
-        self.labelframe1.grid(column=0, row=0, sticky="WE")
+        self.labelframe1.pack(expand=False)
         self.control()
 
         self.labelframe2=ttk.LabelFrame(self.pagina1, text='Medidas')
-        self.labelframe2.grid(column=0, row=1, sticky='WE')
+        self.labelframe2.pack(fill='both',expand=False)
         self.medidas()
 
         self.labelframe3=ttk.LabelFrame(self.pagina1, text='Histórico')
-        self.labelframe3.grid(column=0, row=2, sticky='WE')
+        self.labelframe3.pack(fill='both',expand=True)
         self.historico()
 
 
@@ -42,26 +43,31 @@ class Aplicacion:
         self.cuaderno.add(self.pagina2, text='Grafica')
         
 
-        #self.ventana.geometry('600x600')
+        self.cuaderno.pack(fill='both',expand=True)
+        self.ventana.geometry('600x600')
         #self.ventana.minsize(height=600, width=400)
-        self.cuaderno.grid(column=0, row=0, sticky='WE')
+
+    
+    
+        #self.cuaderno.grid(column=0, row=0, sticky='WE')
+        self.ventana.after(1000,self.obtenervalor2)
         self.ventana.mainloop()
         
         
     def control(self):
-        self.label1=ttk.Label(self.labelframe1, text="Aqui se implementará un boton de inicio")
+        self.label1=ttk.Label(self.labelframe1, text="Start o Stop")
         self.label1.grid(column=0, row=0, sticky='WE')
 
-        self.boton1=ttk.Button(self.labelframe1, text="Obtener valor:", command=self.obtenervalor)
-        self.boton1.grid(column=1, row=2)
+        self.boton1=ttk.Button(self.labelframe1, text="Start/Stop", command=self.obtenervalor)
+        self.boton1.grid(column=0, row=2)
 
     def medidas(self):
-        self.label2=ttk.Label(self.labelframe2, text="Aqui se implementará el valor del sensor a leer")
-        self.label2.grid(column=0, row=0, sticky='WE')
+        self.label2=ttk.Label(self.labelframe2, text="Valor del sensor: ")
+        self.label2.grid(column=0, row=0)
 
         self.lectura=ttk.Label(self.labelframe2)
         self.lectura.configure(foreground='blue')
-        self.lectura.grid(column=0, row=1)
+        self.lectura.grid(column=1, row=0, columnspan=4)
 
         self.seleccion=tk.IntVar()
         self.seleccion.set(3)
@@ -80,26 +86,31 @@ class Aplicacion:
 
 
     def obtenervalor(self):
-
-        self.lecturasensor()
+        
+        self.play=self.play + 1 
     
 
+    def obtenervalor2(self):
+        self.ventana.after(1000,self.obtenervalor2)
+        self.lecturasensor()
+
+
     def lecturasensor(self):
-        
-        if self.seleccion.get() == 1:
-            valor = sense.temp
-            self.lectura.configure(text=str(valor)+' ºC')
-            
-        elif self.seleccion.get() ==2:
-            valor = sense.pressure
-            self.lectura.configure(text=str(valor)+' mbar')
-            
-        elif self.seleccion.get() ==3:
-            valor = sense.humidity
-            self.lectura.configure(text=str(valor)+' %')
-        else:
-            valor=0
-            self.lectura.configure(text=str(valor))    
+        if self.play%2 == 0:    
+            if self.seleccion.get() == 1:
+                valor = sense.temp
+                self.lectura.configure(text=str(valor)+' ºC')
+                
+            elif self.seleccion.get() == 2:
+                valor = sense.pressure
+                self.lectura.configure(text=str(valor)+' mbar')
+                
+            elif self.seleccion.get() == 3:
+                valor = sense.humidity
+                self.lectura.configure(text=str(valor)+' %')
+            else:
+                valor = 0
+                self.lectura.configure(text=str(valor))    
         
         
 
