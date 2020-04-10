@@ -6,16 +6,17 @@ import tkinter.ttk as ttk
 from ttkthemes import ThemedStyle
 from tkinter.messagebox import showinfo
 from tkinter import messagebox as mb
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 valor=0
 
-
 class Aplicacion:
     def __init__(self):
-        #self.i=0
-        #self.imax=100
         self.play=1
+        self.cont=0
         self.ventana=tk.Tk()
+        self.fig = Figure()
         style = ThemedStyle(self.ventana)
         style.set_theme("ubuntu")
         self.ventana.title("Práctica GUI SenseHat")
@@ -37,19 +38,11 @@ class Aplicacion:
         self.historico()
 
 
-
-
         self.pagina2 = ttk.Frame(self.cuaderno)
         self.cuaderno.add(self.pagina2, text='Grafica')
-        
+
 
         self.cuaderno.pack(fill='both',expand=True)
-        self.ventana.geometry('600x600')
-        #self.ventana.minsize(height=600, width=400)
-
-    
-    
-        #self.cuaderno.grid(column=0, row=0, sticky='WE')
         self.ventana.after(1000,self.obtenervalor2)
         self.ventana.mainloop()
         
@@ -77,17 +70,25 @@ class Aplicacion:
         self.radio2.grid(column=1,row=3)
         self.radio3=ttk.Radiobutton(self.labelframe2,text="Humedad",variable=self.seleccion, value=3)
         self.radio3.grid(column=2,row=3) 
-
         
 
     def historico(self):
         self.label3=ttk.Label(self.labelframe3, text="Aqui se implementará un historico de los datos")
         self.label3.grid(column=0, row=0, sticky='WE')
+        self.scroll1 = tk.Scrollbar(self.labelframe3, orient=tk.VERTICAL)
+        self.treeview = ttk.Treeview(self.labelframe3, columns=("Valor", "Fecha/Hora", "Tipo"), yscrollcommand=self.scroll1.set)
+        self.treeview.heading("#0", text="#Num")
+        self.treeview.heading("Valor", text="Valor")
+        self.treeview.heading("Fecha/Hora", text="Fecha/Hora")
+        self.treeview.heading("Tipo", text="Tipo")
+        self.treeview.grid()
+        self.scroll1.configure(command=self.treeview.yview)         
+        self.scroll1.grid(column=1, row=0, sticky='NS')       
 
 
     def obtenervalor(self):
         
-        self.play=self.play + 1 
+        self.play=self.play + 1       
     
 
     def obtenervalor2(self):
@@ -96,44 +97,33 @@ class Aplicacion:
 
 
     def lecturasensor(self):
-        if self.play%2 == 0:    
+        if self.play%2 == 0:  
+            self.cont=self.cont + 1  
+            ahora = time.strftime("%c") 
             if self.seleccion.get() == 1:
                 valor = sense.temp
+                contador=str(self.cont)
                 self.lectura.configure(text=str(valor)+' ºC')
+                self.treeview.insert("", tk.END, text=contador,values=(str(valor)+' ºC', ahora, "Temperatura"))
                 
+
             elif self.seleccion.get() == 2:
                 valor = sense.pressure
+                contador=str(self.cont)
                 self.lectura.configure(text=str(valor)+' mbar')
+                self.treeview.insert("", tk.END, text=contador,values=(str(valor)+' mbar', ahora, "Presion"))
+                
                 
             elif self.seleccion.get() == 3:
                 valor = sense.humidity
+                contador=str(self.cont)
                 self.lectura.configure(text=str(valor)+' %')
+                self.treeview.insert("", tk.END, text=contador,values=(str(valor)+' %', ahora, "Humedad"))
+                
             else:
                 valor = 0
                 self.lectura.configure(text=str(valor))    
         
-        
-
+    
 
 aplicacion=Aplicacion()
-
-
-
-
-
-
-
-
-
-#while self.i < self.imax : 
-#    pinta=str(self.i)
-#    print(pinta)
-#    self.lecturasensor()
-#    self.i=self.i + 1
-#    time.sleep(1)
-
-
-
-#temp= sense.temp
-#pre = sense.pressure
-#hum= sense.humidity
